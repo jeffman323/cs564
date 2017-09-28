@@ -102,12 +102,6 @@ def parseJson(json_file):
                     bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
             for category in item['Category']:
                 categoryEntity.append({'ItemID': item['ItemID'], 'Category': category})
-            """
-            TODO: traverse the items dictionary to extract information from the
-            given `json_file' and generate the necessary .dat files to generate
-            the SQL tables based on your relation design
-            """
-            pass
 
     
     usersFile = open('users.dat', 'w')

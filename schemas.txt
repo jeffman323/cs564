@@ -2,3 +2,5 @@ Items: ItemID|Name|Started|Ends|Description
 Users: UserID|Rating|Location|Country
 Bids: ItemID|UserID|Time|Amount
 Categories: ItemID|Category
+
+null values are "NULL"
