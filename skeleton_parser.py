@@ -83,14 +83,21 @@ def parseJson(json_file):
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
         for item in items:
-            
+
+            # Create Item Entity
             if (item['ItemID'] not in itemEntity):
                 itemEntity[item['ItemID']] = {'ItemID': item['ItemID'], 'Name': item['Name'], 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': item['Description']}
+            
+            # Create User Entity using Seller Information
             if (item['Seller']['UserID'] not in userEntity):
                 userEntity[item['Seller']['UserID']] = {'UserID': item['Seller']['UserID'], 'Rating': item['Seller']['Rating'], 'Location': item['Location'], 'Country': item['Country']}
+
+            # Traverse through bids for Sellers and Bid information
             if (item['Bids']):
                 for bid in item['Bids']:
                     bidder = bid['Bid']['Bidder']
+
+                    # Create User Entity using Bidder information
                     if (bidder['UserID'] not in userEntity):
                         bidder_location = 'NULL'
                         bidder_country = 'NULL'
@@ -99,24 +106,30 @@ def parseJson(json_file):
                         if 'Country' in bidder:
                             bidder_country = bidder['Country']
                         userEntity[bidder['UserID']] = {'UserID': bidder['UserID'], 'Rating': bidder['Rating'], 'Location': bidder_location, 'Country': bidder_country}
+
+                    # Create Bid Entity
                     bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
+            
+            # Create Category Entity
             for category in item['Category']:
                 categoryEntity.append({'ItemID': item['ItemID'], 'Category': category})
 
     
+
+    # Begin Write to Data Files
     usersFile = open('users.dat', 'w')
     itemsFile = open('items.dat', 'w')
     bidsFile = open('bids.dat', 'w')
     categoriesFile = open('categories.dat', 'w')
 
-
+    # Write User Entity to users.dat
     for id, attributes in userEntity.iteritems():
         line = ''
         for a in attributes.itervalues():
             line += str(a)+'|'
         usersFile.write(line[:-1]+'\n')
 
-    
+    # Write Item Entity to items.dat
     for id, attributes in itemEntity.iteritems():
         line = ''
         for a in attributes.itervalues():
@@ -124,15 +137,14 @@ def parseJson(json_file):
         itemsFile.write(line[:-1]+'\n')
 
 
-    
+    # Write Bid Entity to bids.dat
     for attributes in bidEntity:
         line = ''
         for a in attributes.itervalues():
             line += str(a)+'|'
         bidsFile.write(line[:-1]+'\n')
 
-
-    
+    # Write Category Entity to category.dat
     for attributes in categoryEntity:
         line = ''
         for a in attributes.itervalues():
