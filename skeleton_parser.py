@@ -74,9 +74,6 @@ item in the data set. Your job is to extend this functionality to create all
 of the necessary SQL tables for your database.
 """
 def parseJson(json_file):
-    studentsFile = open('students.dat', 'w')
-    itemsFile = open('items.dat', 'w')
-    bidsFile = open('bids.dat', 'w')
 
     itemEntity = {}
     userEntity = {}
@@ -111,9 +108,48 @@ def parseJson(json_file):
             the SQL tables based on your relation design
             """
             pass
-    studentsFile.close()
+
+    
+    usersFile = open('users.dat', 'w')
+    itemsFile = open('items.dat', 'w')
+    bidsFile = open('bids.dat', 'w')
+    categoriesFile = open('categories.dat', 'w')
+
+
+    for id, attributes in userEntity.iteritems():
+        line = ''
+        for a in attributes.itervalues():
+            line += str(a)+'|'
+        usersFile.write(line[:-1]+'\n')
+
+    
+    for id, attributes in itemEntity.iteritems():
+        line = ''
+        for a in attributes.itervalues():
+            line += str(a)+'|'
+        itemsFile.write(line[:-1]+'\n')
+
+
+    
+    for attributes in bidEntity:
+        line = ''
+        for a in attributes.itervalues():
+            line += str(a)+'|'
+        bidsFile.write(line[:-1]+'\n')
+
+
+    
+    for attributes in categoryEntity:
+        line = ''
+        for a in attributes.itervalues():
+            line += str(a)+'|'
+        categoriesFile.write(line[:-1]+'\n')
+
+
+    usersFile.close()
     bidsFile.close()
     itemsFile.close()
+    categoriesFile.close()
 """
 Loops through each json files provided on the command line and passes each file
 to the parser
