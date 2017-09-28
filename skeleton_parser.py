@@ -85,7 +85,7 @@ def parseJson(json_file):
         for item in items:
             
             if (item['ItemID'] not in itemEntity):
-                itemEntity[item['ItemID']] = {'Name': item['Name'], 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': item['Description']}
+                itemEntity[item['ItemID']] = {'ItemID': item['ItemID'], 'Name': item['Name'], 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': item['Description']}
             if (item['Seller']['UserID'] not in userEntity):
                 userEntity[item['Seller']['UserID']] = {'UserID': item['Seller']['UserID'], 'Rating': item['Seller']['Rating'], 'Location': item['Location'], 'Country': item['Country']}
             if (item['Bids']):
@@ -101,7 +101,7 @@ def parseJson(json_file):
                         userEntity[bidder['UserID']] = {'UserID': bidder['UserID'], 'Rating': bidder['Rating'], 'Location': bidder_location, 'Country': bidder_country}
                     bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
             for category in item['Category']:
-                categoryEntity.append({'ItemId': item['ItemID'], 'Category': category})
+                categoryEntity.append({'ItemID': item['ItemID'], 'Category': category})
             """
             TODO: traverse the items dictionary to extract information from the
             given `json_file' and generate the necessary .dat files to generate
