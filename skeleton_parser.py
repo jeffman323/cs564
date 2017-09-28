@@ -80,16 +80,17 @@ def parseJson(json_file):
 
     itemEntity = {}
     userEntity = {}
-    bidEntity = {}
+    bidEntity = []
+    categoryEntity = [];
 
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
         for item in items:
             
             if (item['ItemID'] not in itemEntity):
-                itemEntity[item['ItemID']] = [item['Name'], item['Category'], item['Started'], item['Ends'], item['Description']]
+                itemEntity[item['ItemID']] = {'Name': item['Name'], 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': item['Description']}
             if (item['Seller']['UserID'] not in userEntity):
-                userEntity[item['Seller']['UserID']] = [item['Seller']['Rating'], item['Location'], item['Country']]
+                userEntity[item['Seller']['UserID']] = {'UserID': item['Seller']['UserID'], 'Rating': item['Seller']['Rating'], 'Location': item['Location'], 'Country': item['Country']}
             if (item['Bids']):
                 for bid in item['Bids']:
                     bidder = bid['Bid']['Bidder']
@@ -100,9 +101,10 @@ def parseJson(json_file):
                             bidder_location = bidder['Location']
                         if 'Country' in bidder:
                             bidder_country = bidder['Country']
-                        userEntity[bidder['UserID']] = [bidder['UserID'], bidder['Rating'], bidder_location, bidder_country]
-                    # bidsEntity[]
-                    
+                        userEntity[bidder['UserID']] = {'UserID': bidder['UserID'], 'Rating': bidder['Rating'], 'Location': bidder_location, 'Country': bidder_country}
+                    bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
+            for category in item['Category']:
+                categoryEntity.append({'ItemId': item['ItemID'], 'Category': category})
             """
             TODO: traverse the items dictionary to extract information from the
             given `json_file' and generate the necessary .dat files to generate
