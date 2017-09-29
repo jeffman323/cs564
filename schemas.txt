@@ -1,5 +1,5 @@
-Items: ItemID|Name|Started|Ends|Description
-Users: UserID|Rating|Location|Country
+Items: ItemID|Started|Ends|Name|Description
+Users: Rating|UserID|Location|Country
 Bids: ItemID|UserID|Time|Amount
 Categories: ItemID|Category
 
