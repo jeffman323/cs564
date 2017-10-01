@@ -96,24 +96,25 @@ def parseJson(json_file):
             # Create Item Entity
             if (item['ItemID'] not in itemEntity):
                 itemEntity[item['ItemID']] = {  
-                                                'ItemID': item['ItemID'], 
-                                                'Name': escpapeDQ(item['Name']), 
-                                                'Currently': transformDollar(item['Currently']), 
-                                                'First_Bid': transformDollar(item['First_Bid']), 
-                                                'Number_of_Bids': item['Number_of_Bids'], 
-                                                'Started': transformDttm(item['Started']), 
-                                                'Ends': transformDttm(item['Ends']), 
-                                                'Description': escpapeDQ(item['Description']), 
-                                                'UserID': item['Seller']['UserID']
-                                            }
+                    'ItemID': item['ItemID'], 
+                    'Name': escpapeDQ(item['Name']), 
+                    'Currently': transformDollar(item['Currently']), 
+                    'First_Bid': transformDollar(item['First_Bid']), 
+                    'Number_of_Bids': item['Number_of_Bids'], 
+                    'Started': transformDttm(item['Started']), 
+                    'Ends': transformDttm(item['Ends']), 
+                    'Description': escpapeDQ(item['Description']), 
+                    'UserID': item['Seller']['UserID']
+                }
             
             # Create User Entity using Seller Information
             if (item['Seller']['UserID'] not in userEntity):
                 userEntity[item['Seller']['UserID']] = {
-                                                            'UserID': escpapeDQ(item['Seller']['UserID']), 
-                                                            'Rating': item['Seller']['Rating'], 
-                                                            'Location': escpapeDQ(item['Location']), 
-                                                            'Country': escpapeDQ(item['Country'])}
+                    'UserID': escpapeDQ(item['Seller']['UserID']), 
+                    'Rating': item['Seller']['Rating'], 
+                    'Location': escpapeDQ(item['Location']), 
+                    'Country': escpapeDQ(item['Country'])
+                }
 
             # Traverse through bids for Sellers and Bid information
             if (item['Bids']):
@@ -129,19 +130,28 @@ def parseJson(json_file):
                         if 'Country' in bidder:
                             bidder_country = bidder['Country']
                         userEntity[bidder['UserID']] = {
-                                                            'UserID': escpapeDQ(bidder['UserID']), 
-                                                            'Rating': bidder['Rating'], 
-                                                            'Location': escpapeDQ(bidder_location), 
-                                                            'Country': escpapeDQ(bidder_country)
-                                                        }
+                            'UserID': escpapeDQ(bidder['UserID']), 
+                            'Rating': bidder['Rating'], 
+                            'Location': escpapeDQ(bidder_location), 
+                            'Country': escpapeDQ(bidder_country)
+                        }
 
                     # Create Bid Entity
-                    bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': transformDollar(bid['Bid']['Amount'])})
+                    bidEntity.append({
+                        'ItemID': item['ItemID'], 
+                        'UserID': bidder['UserID'], 
+                        'Time': transformDttm(bid['Bid']['Time']), 
+                        'Amount': transformDollar(bid['Bid']['Amount'])
+                    })
             
             # Create Category Entity
             for category in item['Category']:
+                # Check whether category exists and create category if not exists
                 if (category not in categoryEntity):
-                    categoryEntity[category] = {'Items': [item['ItemID']], 'Category': escpapeDQ(category)}
+                    categoryEntity[category] = {
+                        'Items': [item['ItemID']], 
+                        'Category': escpapeDQ(category)
+                    }
                 elif (category in categoryEntity and item['ItemID'] not in categoryEntity[category]['Items']):
                     categoryEntity[category]['Items'].append(item['ItemID'])
                     
