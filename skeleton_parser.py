@@ -30,6 +30,11 @@ from re import sub
 
 columnSeparator = "|"
 
+itemEntity = {}
+userEntity = {}
+bidEntity = []
+categoryEntity = {};
+
 # Dictionary of months used for date transformation
 MONTHS = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',\
         'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
@@ -84,22 +89,31 @@ of the necessary SQL tables for your database.
 """
 def parseJson(json_file):
 
-    itemEntity = {}
-    userEntity = {}
-    bidEntity = []
-    categoryEntity = [];
-
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
         for item in items:
 
             # Create Item Entity
             if (item['ItemID'] not in itemEntity):
-                itemEntity[item['ItemID']] = {'ItemID': item['ItemID'], 'Name': escpapeDQ(item['Name']), 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': escpapeDQ(item['Description'])}
+                itemEntity[item['ItemID']] = {  
+                                                'ItemID': item['ItemID'], 
+                                                'Name': escpapeDQ(item['Name']), 
+                                                'Currently': transformDollar(item['Currently']), 
+                                                'First_Bid': transformDollar(item['First_Bid']), 
+                                                'Number_of_Bids': item['Number_of_Bids'], 
+                                                'Started': transformDttm(item['Started']), 
+                                                'Ends': transformDttm(item['Ends']), 
+                                                'Description': escpapeDQ(item['Description']), 
+                                                'UserID': item['Seller']['UserID']
+                                            }
             
             # Create User Entity using Seller Information
             if (item['Seller']['UserID'] not in userEntity):
-                userEntity[item['Seller']['UserID']] = {'UserID': escpapeDQ(item['Seller']['UserID']), 'Rating': item['Seller']['Rating'], 'Location': escpapeDQ(item['Location']), 'Country': escpapeDQ(item['Country'])}
+                userEntity[item['Seller']['UserID']] = {
+                                                            'UserID': escpapeDQ(item['Seller']['UserID']), 
+                                                            'Rating': item['Seller']['Rating'], 
+                                                            'Location': escpapeDQ(item['Location']), 
+                                                            'Country': escpapeDQ(item['Country'])}
 
             # Traverse through bids for Sellers and Bid information
             if (item['Bids']):
@@ -114,14 +128,45 @@ def parseJson(json_file):
                             bidder_location = bidder['Location']
                         if 'Country' in bidder:
                             bidder_country = bidder['Country']
-                        userEntity[bidder['UserID']] = {'UserID': escpapeDQ(bidder['UserID']), 'Rating': bidder['Rating'], 'Location': escpapeDQ(bidder_location), 'Country': escpapeDQ(bidder_country)}
+                        userEntity[bidder['UserID']] = {
+                                                            'UserID': escpapeDQ(bidder['UserID']), 
+                                                            'Rating': bidder['Rating'], 
+                                                            'Location': escpapeDQ(bidder_location), 
+                                                            'Country': escpapeDQ(bidder_country)
+                                                        }
 
                     # Create Bid Entity
-                    bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
+                    bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': transformDollar(bid['Bid']['Amount'])})
             
             # Create Category Entity
             for category in item['Category']:
-                categoryEntity.append({'ItemID': item['ItemID'], 'Category': escpapeDQ(category)})
+                if (category not in categoryEntity):
+                    categoryEntity[category] = {'Items': [item['ItemID']], 'Category': escpapeDQ(category)}
+                elif (category in categoryEntity and item['ItemID'] not in categoryEntity[category]['Items']):
+                    categoryEntity[category]['Items'].append(item['ItemID'])
+                    
+
+"""
+Loops through each json files provided on the command line and passes each file
+to the parser
+"""
+def main(argv):
+    if len(argv) < 2:
+        print >> sys.stderr, 'Usage: python skeleton_json_parser.py <path to json files>'
+        sys.exit(1)
+    
+    # Empty the data files first
+    open('users.dat', 'w').close()
+    open('items.dat', 'w').close()
+    open('bids.dat', 'w').close()
+    open('categories.dat', 'w').close()
+    
+    # loops over all .json files in the argument
+    for f in argv[1:]:
+        if isJson(f):
+            parseJson(f)
+            print "Success parsing " + f
+    
 
     # Begin Write to Data Files
     usersFile = open('users.dat', 'a')
@@ -152,36 +197,16 @@ def parseJson(json_file):
         bidsFile.write(line[:-1]+'\n')
 
     # Write Category Entity to category.dat
-    for attributes in categoryEntity:
+    for category in categoryEntity:
         line = ''
-        for a in attributes.itervalues():
-            line += str(a)+'|'
-        categoriesFile.write(line[:-1]+'\n')
+        for item in categoryEntity[category]['Items']:
+            line += str(item)+'|'+str(category)+'\n'
+        categoriesFile.write(line)
 
     usersFile.close()
     bidsFile.close()
     itemsFile.close()
     categoriesFile.close()
-"""
-Loops through each json files provided on the command line and passes each file
-to the parser
-"""
-def main(argv):
-    if len(argv) < 2:
-        print >> sys.stderr, 'Usage: python skeleton_json_parser.py <path to json files>'
-        sys.exit(1)
-    
-    # Empty the data files first
-    open('users.dat', 'w').close()
-    open('items.dat', 'w').close()
-    open('bids.dat', 'w').close()
-    open('categories.dat', 'w').close()
-    
-    # loops over all .json files in the argument
-    for f in argv[1:]:
-        if isJson(f):
-            parseJson(f)
-            print "Success parsing " + f
 
 if __name__ == '__main__':
     main(sys.argv)
