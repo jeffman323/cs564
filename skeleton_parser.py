@@ -117,10 +117,10 @@ def parseJson(json_file):
     
 
     # Begin Write to Data Files
-    usersFile = open('users.dat', 'a')
-    itemsFile = open('items.dat', 'a')
-    bidsFile = open('bids.dat', 'a')
-    categoriesFile = open('categories.dat', 'a')
+    usersFile = open('data/users.dat', 'a')
+    itemsFile = open('data/items.dat', 'a')
+    bidsFile = open('data/bids.dat', 'a')
+    categoriesFile = open('data/categories.dat', 'a')
 
     # Write User Entity to users.dat
     for id, attributes in userEntity.iteritems():

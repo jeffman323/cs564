@@ -1,7 +1,7 @@
-rm bids.dat
-rm users.dat
-rm items.dat
-rm categories.dat
+if [ -d data ]; then
+    rm -rf data
+fi
+mkdir data
 A="python skeleton_parser.py"
 for entry in ebay_data/*
 do
