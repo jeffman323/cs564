@@ -69,6 +69,15 @@ def transformDollar(money):
     return sub(r'[^\d.]', '', money)
 
 """
+Escapes quotation marks for strings
+"""
+
+def escpapeDQ(str):
+    if (str == None):
+        return '"NULL"'
+    return '"'+str.replace('"', '""')+'"'
+
+"""
 Parses a single json file. Currently, there's a loop that iterates over each
 item in the data set. Your job is to extend this functionality to create all
 of the necessary SQL tables for your database.
@@ -86,11 +95,11 @@ def parseJson(json_file):
 
             # Create Item Entity
             if (item['ItemID'] not in itemEntity):
-                itemEntity[item['ItemID']] = {'ItemID': item['ItemID'], 'Name': item['Name'], 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': item['Description']}
+                itemEntity[item['ItemID']] = {'ItemID': item['ItemID'], 'Name': escpapeDQ(item['Name']), 'Started': transformDttm(item['Started']), 'Ends': transformDttm(item['Ends']), 'Description': escpapeDQ(item['Description'])}
             
             # Create User Entity using Seller Information
             if (item['Seller']['UserID'] not in userEntity):
-                userEntity[item['Seller']['UserID']] = {'UserID': item['Seller']['UserID'], 'Rating': item['Seller']['Rating'], 'Location': item['Location'], 'Country': item['Country']}
+                userEntity[item['Seller']['UserID']] = {'UserID': escpapeDQ(item['Seller']['UserID']), 'Rating': item['Seller']['Rating'], 'Location': escpapeDQ(item['Location']), 'Country': escpapeDQ(item['Country'])}
 
             # Traverse through bids for Sellers and Bid information
             if (item['Bids']):
@@ -105,14 +114,14 @@ def parseJson(json_file):
                             bidder_location = bidder['Location']
                         if 'Country' in bidder:
                             bidder_country = bidder['Country']
-                        userEntity[bidder['UserID']] = {'UserID': bidder['UserID'], 'Rating': bidder['Rating'], 'Location': bidder_location, 'Country': bidder_country}
+                        userEntity[bidder['UserID']] = {'UserID': escpapeDQ(bidder['UserID']), 'Rating': bidder['Rating'], 'Location': escpapeDQ(bidder_location), 'Country': escpapeDQ(bidder_country)}
 
                     # Create Bid Entity
                     bidEntity.append({'ItemID': item['ItemID'], 'UserID': bidder['UserID'], 'Time': transformDttm(bid['Bid']['Time']), 'Amount': bid['Bid']['Amount']})
             
             # Create Category Entity
             for category in item['Category']:
-                categoryEntity.append({'ItemID': item['ItemID'], 'Category': category})
+                categoryEntity.append({'ItemID': item['ItemID'], 'Category': escpapeDQ(category)})
 
     # Begin Write to Data Files
     usersFile = open('users.dat', 'a')
@@ -148,7 +157,6 @@ def parseJson(json_file):
         for a in attributes.itervalues():
             line += str(a)+'|'
         categoriesFile.write(line[:-1]+'\n')
-
 
     usersFile.close()
     bidsFile.close()
