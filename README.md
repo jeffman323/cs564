@@ -9,3 +9,11 @@ TODO: Read project description
 To run all JSON files:
 
 ```sh runParser.sh```
+
+To run all the queries:
+
+```sh queries.sh```
+
+To run queries individually:
+
+```sqlite3 AuctionBase < query1.sql```
