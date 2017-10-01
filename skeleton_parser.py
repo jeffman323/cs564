@@ -114,13 +114,11 @@ def parseJson(json_file):
             for category in item['Category']:
                 categoryEntity.append({'ItemID': item['ItemID'], 'Category': category})
 
-    
-
     # Begin Write to Data Files
-    usersFile = open('data/users.dat', 'a')
-    itemsFile = open('data/items.dat', 'a')
-    bidsFile = open('data/bids.dat', 'a')
-    categoriesFile = open('data/categories.dat', 'a')
+    usersFile = open('users.dat', 'a')
+    itemsFile = open('items.dat', 'a')
+    bidsFile = open('bids.dat', 'a')
+    categoriesFile = open('categories.dat', 'a')
 
     # Write User Entity to users.dat
     for id, attributes in userEntity.iteritems():
@@ -164,6 +162,13 @@ def main(argv):
     if len(argv) < 2:
         print >> sys.stderr, 'Usage: python skeleton_json_parser.py <path to json files>'
         sys.exit(1)
+    
+    # Empty the data files first
+    open('users.dat', 'w').close()
+    open('items.dat', 'w').close()
+    open('bids.dat', 'w').close()
+    open('categories.dat', 'w').close()
+    
     # loops over all .json files in the argument
     for f in argv[1:]:
         if isJson(f):
