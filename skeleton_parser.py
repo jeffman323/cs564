@@ -92,7 +92,7 @@ def parseJson(json_file):
     with open(json_file, 'r') as f:
         items = loads(f.read())['Items'] # creates a Python dictionary of Items for the supplied json file
         for item in items:
-
+            # hello
             # Create Item Entity
             if (item['ItemID'] not in itemEntity):
                 itemEntity[item['ItemID']] = {  
