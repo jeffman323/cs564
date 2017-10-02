@@ -10,6 +10,14 @@ To run all JSON files:
 
 ```sh runParser.sh```
 
+To create sql schemas:
+
+```sqlite3 AuctionBase < create.sql```
+
+To load data files:
+
+```sqlite3 AuctionBase < load.txt```
+
 To run all the queries:
 
 ```sh queries.sh```
