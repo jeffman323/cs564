@@ -1,6 +1,1 @@
-A="python skeleton_parser.py"
-for entry in ebay_data/*
-do
-    A=$A" "$entry
-done
-eval $A
+python skeleton_parser.py ebay_data/items-*.json
